@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  cdc-sync-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cdc-sync-service
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - cdc_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env.database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cdc_network
+
+  mysql:
+    image: mysql:8.3
+    container_name: mysql
+    restart: always
+    env_file:
+      - .env.database
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - cdc_network
+
+networks:
+  cdc_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mysql_data:
